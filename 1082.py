@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-valor_A = ord("a")
 
-########################################################
-# Classe referente ao grafo
+
+#--------------------------CLASSE GRAFO--------------------------
 
 class Grafo:
     """
-        Classe destinada para armazenar lista de adjacencia.
+        Classe destinada para armazenar lista de adjacencia de representação do grafo
     """
 
     def __init__(self, vertices=0, arestas=0):
@@ -14,8 +13,8 @@ class Grafo:
             Construtor de Lista. Inicializa uma lista vazia do 
             tamanho do numero de vertices
 
-            `param` vertices: numero de vertices 
-            `param` arestas: numero de arestas
+            `param` vertices: numero de vertices do grafo
+            `param` arestas: numero de arestas do grafo
         """
 
         self.num_vertices = vertices
@@ -23,9 +22,8 @@ class Grafo:
 
         self.vertices = []
         
-
-        # Inicializa lista do tamanho de verticies com cada
-        # inidice uma lista vazia
+        # Preenche lista de vertices, sendo cada vertice composto
+        # de uma lista de vertices destino e se este já foi visitado
         for vertice in range(self.num_vertices):
             vertice_formato = {
                 "destino": [],
@@ -45,70 +43,108 @@ class Grafo:
         self.vertices[origem]["destino"].append(destino)
         self.vertices[destino]["destino"].append(origem)
 
+
     def set_visitado(self, index):
+        """
+            Modifica  o status de modificado para True
+
+            `param` index: indice do vertice na lista de vertices
+        """
         self.vertices[index]["visitado"] = True
 
     def visitado(self, index):
-        return self.vertices[index]["visitado"]
+        """
+            Retorna o status de visitado do vertice
 
-    def __len__(self):
-        return len(self.vertices)
+            `param` index: indice do vertice no grafo
+        """
+        return self.vertices[index]["visitado"]
     
     def len_destino(self, index):
+        """
+            Retorna a quantidade de vértices ligadas ao vértice desejado
+
+            `param` index: indice do vertice no grafo
+        """
         return len(self.vertices[index]["destino"])
 
     def destino(self, index):
+        """
+            Retorna a lista de vértices ligados ao vértice desejado
+
+            `param` index: indice do vertice no grafo
+        """
         return self.vertices[index]["destino"]
 
-    # def __str__(self):
-    #     resposta = ""
-    #     # Anda pelos vertices
-    #     for i, conjuntos in enumerate(self.vertices):
-    #         resposta += json.dump(conjuntos, indent=4)
 
-    #     return resposta
 
-def pathR(grafo, index, comp):
+#--------------------------CONSTANTE--------------------------
+# Define valor asc referente a letra a
+valor_A = ord("a")
+
+
+
+#--------------------------FUNCOES--------------------------
+
+def pathR(grafo, index, componente_conexa):
+    """
+        Realiza a busca em profundidade e acha uma componente conexa
+
+        `param` grafo: grafo em que será feita a busca
+        `param` index: indice do vertice no grafo
+        `param` componente_conexa: lista vazia que será preenchida com a componente conexa
+    """
+
     # Verifica primeiro se o vertice daquele indice foi visitado
     if not grafo.visitado(index):
-        # Adiciona letra para lista da componente conexa
-        comp.append(chr(valor_A + index))
+        # Adiciona a letra (vertice) para a lista da componente conexa
+        componente_conexa.append(chr(valor_A + index))
+
         grafo.set_visitado(index)
-        # print(f"Visitando {index} com conexões a {grafo.destino(index)}")
+
+        # Chama recursivamente a função para todos os vértices ligados a este
         for i in grafo.destino(index):
-            comp = pathR(grafo, i, comp)
-            # print(f"Visitando: {i} e list {comp}")
+            componente_conexa = pathR(grafo, i, componente_conexa)
+
         
-        # print()
-    return comp
+    return componente_conexa
 
 
-########################################################
+
+
+#--------------------------MAIN--------------------------
 
 if __name__ == "__main__":
-    aux = ord("a")
-    
     # Leitura da entrada e insercao dos vertices nos grafos
     testes = int(input())
+    
     for i in range(testes):
-        num_vertice, num_arestas = input().split()
-        num_vertice, num_arestas = int(num_vertice), int(num_arestas)
+        num_vertice, num_arestas = list(map(int,input().split()))
+
         grafo = Grafo(num_vertice, num_arestas)
         
+        # Le todas as arestas e preenche o grafo
         for _ in range(num_arestas):
-            origem, destino = input().lower().split()
-            id_origem, id_destino = ord(origem) - aux, ord(destino) - aux
+            origem, destino = list(map(ord,input().split()))
+
+            id_origem, id_destino = origem - valor_A, destino - valor_A
+
             grafo.adiciona_aresta(id_origem, id_destino)
-          
+
+
         print(f"Case #{i+1}:")
-        cont = 0
+        contador = 0
+        
+        # Chama a função pathR para cada vértice do grafo
         for i in range(num_vertice):
-            comp = []
-            comp = pathR(grafo, i, comp)
-            if len(comp):
-                cont += 1
-                comp.sort()
-                print(*comp, "", sep=",")    
-        print(f"{cont} connected components", end="\n\n")    
+            componente_conexa = pathR(grafo, i, [])
+            
+            # Caso a componente conexa não esteja vazia, ordena e imprime a lista
+            if len(componente_conexa):
+                contador += 1
+                componente_conexa.sort()
+                print(*componente_conexa, "", sep=",")    
+
+        print(f"{contador} connected components", end="\n\n")    
     
     
