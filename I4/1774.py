@@ -21,24 +21,6 @@ Algoritmo de Prim
 '''
 import sys
 
-
-# def read_graph():
-#     nodes, edges = map(int, input().split())
-
-#     # Cria grafo vazio
-#     graph = [{"connections": [], "weights": []} for _ in range(nodes)]
-
-#     for _ in range(edges):
-#         origin, destiny, weight = map(int, input().split())
-        
-#         graph[origin - 1]['connections'].append(destiny - 1)
-#         graph[destiny - 1]['connections'].append(origin - 1)
-        
-#         graph[origin - 1]['weights'].append(weight)
-#         graph[destiny - 1]['weights'].append(weight)
-
-#     return graph, nodes, edges
-
 def read_graph():
     nodes, edges = map(int, input().split())
 
@@ -53,74 +35,131 @@ def read_graph():
         
     return graph, nodes
 
+
+def PrimTeste(adjacencyMatrix, vertices):
+    cost = 0
+    # Defining a really big number:
+    positiveInf = float('inf')
+
+    selectedVertices = [False for vertex in range(vertices)]
+
+    mstMatrix = [[0 for column in range(vertices)] for row in range(vertices)]
+
+    # While there are vertices that are not included in the MST, keep looking:
+    while False in selectedVertices:
+
+        # We use the big number we created before as the possible minimum weight
+        minimum = positiveInf
+
+        # The starting vertex
+        start = 0
+
+        # The ending vertex
+        end = 0
+
+        for i in range(0,vertices):
+            # If the vertex is part of the MST, look its relationships
+            if selectedVertices[i]:
+                # Again, we use the Symmetric Matrix as an advantage:
+                for j in range(0+i,vertices):
+                    # If the vertex analyzed have a path to the ending vertex AND its not included in the MST to avoid cycles)
+                    if (not selectedVertices[j] and adjacencyMatrix[i][j]>0):  
+                        # If the weight path analyzed is less than the minimum of the MST
+                        if adjacencyMatrix[i][j] < minimum:
+                            # Defines the new minimum weight, the starting vertex and the ending vertex
+                            minimum = adjacencyMatrix[i][j]
+                            start, end = i, j
+        
+        # Since we added the ending vertex to the MST, it's already selected:
+        selectedVertices[end] = True
+
+        # Filling the MST Adjacency Matrix fields:
+        mstMatrix[start][end] = minimum
+        # Initially, the minimum will be Inf if the first vertex is not connected with itself, but really it must be 0:
+        if minimum == positiveInf:
+            mstMatrix[start][end] = 0
+        else:
+            cost += minimum
+            
+        # Symmetric matrix, remember
+        mstMatrix[end][start] = mstMatrix[start][end]
+
+    # Show off:
+    print(mstMatrix)
+    cost -= minimum
+    print(cost)
+
+
+
+
+
 def prim(graph, graph_size):
     graph_nodes = {i for i in range(graph_size)}
     # graph_visited = set()
     tree = [0 for i in range(graph_size)]
     cost = 0
-    
-
-    # [inf,inf,3,4,inf]
-    # [inf,inf,5,7,3]
-    # [3,5,inf,1,inf]
-    # [4,7,1,inf,inf]
-    # [inf,3,inf,inf,inf]
-    #   0
-    # /  \
-    # 2 - 3
-    # \  /
-    #  1 - 4
-
-    # {0,,}
-    # u = 0
-    # u_dist = 3
-    # w = 2
-    # w_dist = 0
-    
+        
     u = 0
     graph_visited = {u}
-    print(*graph, sep="\n")
 
-    while graph_size - (len(graph_visited)):
+    while graph_size > (len(graph_visited)):
+        print(f"tam visit {len(graph_visited)} e tamgraph {graph_size}")
         counter = 0
-        print(f"Verificando u: {u}")
+        print(f"Verificando u: {u}", "row:", graph[u])
+
         while True:
             counter += 1
+            u_dist = min(graph[u])
+            print("u_dis: ", u_dist)
+            w = graph[u].index(u_dist)
+            
             if counter == 6:
-                print("quit")
+                print("Quit")
                 quit()
                 
-            u_dist = min(graph[u])
-            w = graph[u].index(u_dist)
+
             if w not in graph_visited or u_dist == sys.maxsize:
-                # graph[u][w] = sys.maxsize
                 break
+            else:
+                graph[u][w] = graph[w][u] = sys.maxsize
+        
         print(f"Primeiro w: {w}")
-        aux = w
+
+        aux_u = u
+        aux_w = w
         min_dist = u_dist
         for node in graph_visited - {u}:
             aux_dist = min(graph[node])
-
+            print("Node:", node, graph[node])
+    
             if min_dist > aux_dist:
-                min_dist = aux_dist
-                aux = node
-        print(*graph, sep="\n")
+                    min_dist = aux_dist
+                    aux_w = graph[node].index(aux_dist)
+                    aux_u = node
 
-        graph[u][aux] = sys.maxsize
-        graph[aux][u] = sys.maxsize
+            # if aux_w not in graph_visited or u_dist == sys.maxsize:
+            #     break
+            # else:
+            #     graph[u][w] = graph[w][u] = sys.maxsize
 
-        graph_visited.add(aux)
-        print(f"ligando: {aux} para {u}. tam visit: {graph_visited}")
+        graph[aux_u][aux_w] = sys.maxsize
+        graph[aux_w][aux_u] = sys.maxsize
+
+        graph_visited.add(aux_w)
+        print(f"ligando: {aux_w} para {aux_u}. tam visit: {graph_visited}")
         cost += min_dist
-        u = aux
+        print("cost:", cost)
+        u = aux_w
+        print()
     
     return cost
         
 
 graph, nodes = read_graph()
 
-print(prim(graph, nodes))
+# print(prim(graph, nodes))
 
+PrimTeste(graph, nodes)
 
 ''''
 
