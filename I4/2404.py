@@ -13,6 +13,24 @@ matriz de pesos
 saída: T
 '''
 
+# Procura quem é a raiz absoluta de i
+def find(parents, i):
+    while True:
+        # Se o valor é -1 então a raiz é o próprio valor (indice)
+        if parents[i] == -1:
+            return i
+        else:
+            i = parents[i]
+
+# Faz a união de dois nós (a raiz do nó destino vira o nó origem)
+def union(parents, origin, destiny):
+    origin = find(parents, origin)
+    destiny = find(parents, destiny)
+    parents[origin] = destiny
+
+    return parents
+
+# Le a entrada e preenche o grafo
 def read_graph():
     nodes, edges = map(int, input().split())
 
@@ -21,55 +39,45 @@ def read_graph():
     for _ in range(edges):
         origin, destiny, weight = map(int, input().split())
         graph.append({
-            'origin': origin,
-            'destiny': destiny,
+            'origin': origin-1, 
+            'destiny': destiny-1,
             'weight': weight,
-            'connected': False
         })
-        
+        # os valores são guardados no grafo com -1 para facilitar o acesso aos indices
+
     return graph, nodes, edges
 
 def kruskal(graph, nodes, edges):
-
+    # Ordena o grafo com baso nos pesos das arestas
     sorted_graph = sorted(graph, key = lambda k: k['weight'])
-    tree = set()
+    tree = []
     cost = 0
-    # print(*sorted(graph, sep="\n"))
-    for edge in sorted_graph:
-        print("arvore", tree)
-        print("detino", edge['destiny'])
-        print("origem", edge['origin'])
-        # não consegue ligar componentes conexas
-        if cost == 0 or (edge['destiny'] in tree and edge['origin'] not in tree) or (edge['destiny'] not in tree and edge['origin'] in tree):
-            tree.add(edge['destiny'])
-            tree.add(edge['origin'])
-            edge['connected'] = True
-            cost += edge['weight']
-        # CAGUEI O CODIGO
-        elif edge['destiny'] not in tree and edge['origin'] not in tree:
-            print("adicionei a aresta")
-            tree.add(edge['destiny'])
-            tree.add(edge['origin'])
-            cost += edge['weight']
+    
+    # Inicializando a estrutura union find
+    parents = [-1 for _ in range(nodes)]
 
 
+    i = 0
+    # A mst só terá nodes-1 arestas 
+    while len(tree) + 1 < nodes:
+        edge = sorted_graph[i]
+
+        # Acha as raízes absolutas dos vértices
+        parent_origin = find(parents, edge['origin'])
+        parent_destiny = find(parents, edge['destiny'])
+
+        # Se forem iguais então a aresta tornaria o grafo ciclico
+        if parent_origin == parent_destiny:
+            i += 1
+            continue
         else:
-            for i in range(edges):
-                aux_edge = sorted_graph[i]
-                if not edge['connected']:
-                # Ver se as edges que estão no grafo fazem parte d
-                    if aux_edge['destiny'] == edge['destiny'] or aux_edge['origin'] == edge['origin'] or aux_edge['destiny'] == edge['origin'] or aux_edge['origin'] == edge['destiny']:
-                        tree.add(edge['destiny'])
-                        tree.add(edge['origin'])
-                        cost += edge['weight']
-                        break
-                    
-
-        
-        if len(tree) == nodes + 1:
-            break
+            # Faz a união e adiciona a aresta na mst
+            parents = union(parents, parent_origin, parent_destiny)
+            tree.append(edge)
+            cost += edge['weight']
 
     return cost
+
 
 graph, nodes, edges = read_graph()
 print(kruskal(graph, nodes, edges ))
