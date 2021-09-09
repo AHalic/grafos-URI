@@ -50,7 +50,8 @@ def read_graph():
 def kruskal(graph, nodes, edges):
     # Ordena o grafo com baso nos pesos das arestas
     sorted_graph = sorted(graph, key = lambda k: k['weight'])
-    tree = []
+    tree_size = 0
+    # tree = []
     cost = 0
     
     # Inicializando a estrutura union find
@@ -59,7 +60,7 @@ def kruskal(graph, nodes, edges):
 
     i = 0
     # A mst só terá nodes-1 arestas 
-    while len(tree) + 1 < nodes:
+    while tree_size + 1 < nodes:
         edge = sorted_graph[i]
 
         # Acha as raízes absolutas dos vértices
@@ -71,13 +72,14 @@ def kruskal(graph, nodes, edges):
             i += 1
             continue
         else:
-            # Faz a união e adiciona a aresta na mst
+            # Faz a união e adiciona a conta a aresta na mst (optamos nao salvar)
             parents = union(parents, parent_origin, parent_destiny)
-            tree.append(edge)
+            tree_size += 1
+            # tree.append(edge)
             cost += edge['weight']
 
     return cost
 
-
+#-------------------------------------------------------------------------------------
 graph, nodes, edges = read_graph()
 print(kruskal(graph, nodes, edges ))
