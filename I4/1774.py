@@ -37,15 +37,15 @@ def read_graph():
 
 
 # Procura o vertice de menor peso na arvore
-def findMin(weights, tree):
-    min = sys.maxsize
+def find_min(weights, tree):
+    aux_min = sys.maxsize
     node = -1
 
     # Busca no vetor
     for i in range(len(weights)):
         # Procura vertice que ainda não esteja na arvore e tenha menor peso
-        if weights[i] < min and i not in tree:
-            min = weights[i]
+        if weights[i] < aux_min and i not in tree:
+            aux_min = weights[i]
             node = i
     return node
     
@@ -54,14 +54,18 @@ def findMin(weights, tree):
 def prim(graph, nodes):
     # Inicializa o vetor de pesos com um valor muito grande
     weights = [sys.maxsize for i in range(nodes)]
+    
     # Escolhe o ponto inicial e modifica o peso
-    weights[0] = 0
     tree = set()
+    tree_size = 0
+    weights[0] = 0
 
-    while len(tree) + 1 < nodes:
+    # while len(tree) + 1 < nodes:
+    while tree_size < nodes:
         # acha o vertice de menor peso e adiciona ele a mst
-        u = findMin(weights, tree)
+        u = find_min(weights, tree)
         tree.add(u)
+        tree_size += 1
 
         # relaxa os vertices
         for w in range(nodes):
@@ -73,9 +77,7 @@ def prim(graph, nodes):
     # retorna a soma dos pesos (equivalente ao custo total)
     return sum(weights)
 
-
-        
+#-------------------------------------------------------------------------------
 
 graph, nodes = read_graph()
-
 print(prim(graph, nodes))

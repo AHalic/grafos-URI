@@ -57,7 +57,6 @@ def kruskal(graph, nodes, edges):
     # Inicializando a estrutura union find
     parents = [-1 for _ in range(nodes)]
 
-
     i = 0
     # A mst só terá nodes-1 arestas 
     while tree_size + 1 < nodes:
